@@ -1,5 +1,5 @@
 {
-  "name": "stream-responses",
+  "name": "realtime-hub",
   "version": "0.0.1",
   "private": true,
   "scripts": {
