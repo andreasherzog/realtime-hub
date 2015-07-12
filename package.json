@@ -1,0 +1,14 @@
+{
+  "name": "stream-responses",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "./node_modules/nodemon/bin/nodemon.js server.js"	
+},
+  "dependencies": {
+    "bluebird": "2.9.33",
+    "express.io": "latest",
+    "twitter": "latest", 
+    "nodemon": "latest"
+ }
+}
