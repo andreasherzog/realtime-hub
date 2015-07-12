@@ -1,8 +1,18 @@
+var isLiveStream = false;
+
 io = io.connect();
 
 io.emit('ready', {from: 'client'}, function(){});
-
-var isLiveStream = false;
+io.on('stopStream', function(){
+        replaceNotificationArea('Stream: inactive');
+});
+io.on('error', function(data){
+    addToTextArea(data.error.stringify());
+});
+io.on('newTweet', function(data){
+        console.log(data.tweet);
+        addToTextArea(renderTweet(data.tweet));
+});
 
 function replaceNotificationArea(newText){
     var notificationArea = document.getElementById("notificationArea");
@@ -45,12 +55,6 @@ function startStream(){
     isLiveStream = false;
     io.emit('Stream:start');
     replaceNotificationArea('Stream: active');
-    io.on('stopStream', function(){
-        replaceNotificationArea('Stream: inactive');
-    })
-    io.on('error', function(data){
-        addToTextArea(data.error.stringify());
-    });
 }
 function getNextTweets(){
     io.emit('getNextTweets', {
@@ -69,9 +73,5 @@ function setLiveStream(){
     replaceNotificationArea('Stream: live');
     isLiveStream = true;
     io.emit('Stream:live');
-    io.on('newTweet', function(data){
-        console.log(data.tweet);
-        addToTextArea(renderTweet(data.tweet));
-    });
 }
 

@@ -48,7 +48,6 @@ app.io.route('Stream', {
     live: function(req){
         var user = req.io.socket.id;
         var isLiveStream = true;
-        console.log('Start Live Stream');
         startUserStream(req, user, isLiveStream);
     }
 });
@@ -102,6 +101,7 @@ function startUserStream(req, user, isLiveStream){
         });
     }
     else{
+        console.log('livestream: ' + isLiveStream);
         userStreams[user].isLiveStream = isLiveStream;
     }
 }
