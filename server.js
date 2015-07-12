@@ -1,18 +1,22 @@
-var app = require('express.io')();
+var express = require('express.io');
+var app = express();
 var Twitter = require('twitter');
 var twitterClient = new Twitter({
-    consumer_key: 'wmhirukuUw2RUqgMSndPz7Qpf',
-    consumer_secret: 'uVa2iEpLIQzPSATFSsxJwSda49qu11EewkHbLZNQGwmFtWLgLz',
-    access_token_key: '2253422809-pYt6yYAY7A36ijX5u0RFYgZSCw0kSuQ1kQyuX1E',
-    access_token_secret: 'CNi3C0h6B2gKO22gHFAB5nBO2SBVia3iBcHr7ZxBo69Xd'
+    consumer_key: process.env.CONSUMER_KEY,
+    consumer_secret: process.env.CONSUMER_SECRET,
+    access_token_key: process.env.TOKEN_KEY,
+    access_token_secret: process.env.TOKEN_SECRET
 });
+
 var counter = 0;
 var tweetQueue = [];
 var userStreams = {};
 
 app.http().io();
 
-app.io.route('ready', function(req){
+app.use(express.static('public'));
+
+app.io.route('ready', function(){
     console.log('client connected, to start streaming press button...');
 });
 
@@ -60,7 +64,7 @@ app.io.route('getNextTweets', function(req){
 });
 
 app.get('/', function(req, res){
-    res.sendfile(__dirname + '/client.html');
+    res.sendfile(__dirname + '/public/client.html');
 });
 
 function stopUserStream(req, user){

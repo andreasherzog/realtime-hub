@@ -1,0 +1,15 @@
+<script src="socket.io/socket.io.js"></script>
+<script src="client.js"></script>
+<div id="body">
+<div id="notificationArea">
+    <p>Stream: inactive</p>
+</div>
+<div id="buttonArea">
+<button id="countButton" onclick="sendCountUp()">Count Up</button>
+<button id="startStreamButton" onclick="startStream()">Start Stream</button>
+<button id="getNextTweetsButton" onclick="getNextTweets()">Get next 3 tweets</button>
+<button id="stopStream" onclick="stopStream()">Stop Stream</button>
+<button id="liveStream" onclick="setLiveStream()">Live Stream</button>
+</div>
+<div id="textArea"/>
+</div>
