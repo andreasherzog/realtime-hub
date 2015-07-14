@@ -36,19 +36,27 @@ app.io.route('Stream', {
     start: function(req){
         var user = req.io.socket.id;
         var isLiveStream = false;
-        startUserStream(req, user, isLiveStream);
+        startUserStream(req, user, isLiveStream, function(){
+            console.log('standard userStream established');
+        });
         setTimeout(function(){
-            stopUserStream(req, user);
+            stopUserStream(req, user, function(){
+                console.log('userStream stopped');
+            });
         }, 60000);
     },
     stop: function(req){
         var user = req.io.socket.id;
-        stopUserStream(req, user);
+        stopUserStream(req, user, function(){
+            console.log('userStream stopped');
+        });
     },
     live: function(req){
         var user = req.io.socket.id;
         var isLiveStream = true;
-        startUserStream(req, user, isLiveStream);
+        startUserStream(req, user, isLiveStream, function(){
+            console.log('live userStream established');
+        });
     }
 });
 
@@ -66,7 +74,7 @@ app.get('/', function(req, res){
     res.sendfile(__dirname + '/public/client.html');
 });
 
-function stopUserStream(req, user){
+function stopUserStream(req, user, callback){
     var userStream;
     console.log('stopping user stream');
     if(userStreams[user]){
@@ -75,9 +83,10 @@ function stopUserStream(req, user){
         delete userStreams[user];
         req.io.emit('stopStream');
     }
+    callback();
 }
 
-function startUserStream(req, user, isLiveStream){
+function startUserStream(req, user, isLiveStream, callback){
     if(!userStreams[user]){
         twitterClient.stream('statuses/filter', {track: '#beer'}, function(newStream){
             userStreams[user] = newStream;
@@ -99,10 +108,12 @@ function startUserStream(req, user, isLiveStream){
                 error: error
             });
         });
+        callback();
     }
     else{
         console.log('livestream: ' + isLiveStream);
         userStreams[user].isLiveStream = isLiveStream;
+        callback();
     }
 }
 

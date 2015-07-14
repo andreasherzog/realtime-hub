@@ -1,6 +1,8 @@
 var isLiveStream = false;
 
-io = io.connect();
+var socketUrl = getSocketUrl();
+
+io = io.connect(socketUrl);
 
 io.emit('ready', {from: 'client'}, function(){});
 io.on('stopStream', function(){
@@ -14,29 +16,37 @@ io.on('newTweet', function(data){
         addToTextArea(renderTweet(data.tweet));
 });
 
+function getSocketUrl(){
+    var currentUrl = window.location.href;
+    console.log(currentUrl);
+    if(currentUrl === 'http://localhost:3000/')
+        return currentUrl;
+    return 'http://hub.pom-dev002.muc.pom';
+}
+
 function replaceNotificationArea(newText){
-    var notificationArea = document.getElementById("notificationArea");
-    var newElement = document.createElement("p");
+    var notificationArea = document.getElementById('notificationArea');
+    var newElement = document.createElement('p');
     var node = document.createTextNode(newText);
 
-    newElement.setAttribute("id", "notificationArea");
+    newElement.setAttribute('id', 'notificationArea');
     newElement.appendChild(node);
 
     notificationArea.parentNode.replaceChild(newElement, notificationArea);
 }
 function replaceTextArea(newText){
-    var textArea = document.getElementById("textArea");
-    var newElement = document.createElement("p");
+    var textArea = document.getElementById('textArea');
+    var newElement = document.createElement('p');
     var node = document.createTextNode(newText);
 
-    newElement.setAttribute("id", "textArea");
+    newElement.setAttribute('id', 'textArea');
     newElement.appendChild(node);
 
     textArea.parentNode.replaceChild(newElement, textArea);
 }
 function addToTextArea(newText){
-    var textArea = document.getElementById("body");
-    var newElement = document.createElement("p");
+    var textArea = document.getElementById('body');
+    var newElement = document.createElement('p');
     var node = document.createTextNode(newText);
 
     newElement.appendChild(node);
