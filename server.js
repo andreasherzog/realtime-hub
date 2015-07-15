@@ -38,14 +38,13 @@ app.io.route('Stream', {
     start: function(req){
         var user = req.io.socket.id;
         var isLiveStream = false;
-        startUserStream(req, user, isLiveStream, function(){
-            console.log('standard userStream established');
+        startUserStream(req, user, isLiveStream)
+        .delay(60000)
+        .then(stopUserStream.bind(null, req, user))
+        .catch(function(error){
+            handleError(error, req);
         });
-        setTimeout(function(){
-            stopUserStream(req, user, function(){
-                console.log('userStream stopped');
-            });
-        }, 60000);
+
     },
     stop: function(req){
         var user = req.io.socket.id;
@@ -56,8 +55,9 @@ app.io.route('Stream', {
     live: function(req){
         var user = req.io.socket.id;
         var isLiveStream = true;
-        startUserStream(req, user, isLiveStream, function(){
-            console.log('live userStream established');
+        startUserStream(req, user, isLiveStream)
+        .catch(function(error){
+            handleError(error, req);
         });
     }
 });
@@ -105,7 +105,7 @@ function increasedResponse(increaseBy){
 }
 
 
-function stopUserStream(req, user, callback){
+function stopUserStream(req, user){
     var userStream;
     console.log('stopping user stream');
     if(userStreams[user]){
@@ -114,24 +114,37 @@ function stopUserStream(req, user, callback){
         delete userStreams[user];
         req.io.emit('stopStream');
     }
-    callback();
 }
 
-function startUserStream(req, user, isLiveStream, callback){
+function startUserStream(req, user, isLiveStream){
+    console.log(user);
     if(!userStreams[user]){
-        twitterClient.stream('statuses/filter', {track: '#beer'}, function(newStream){
-            userStreams[user] = newStream;
+        console.log('stream');
+        return initializeUserStream(req, user, isLiveStream);
+    }
+    return new Promise(function (resolve){
+        userStreams[user].isLiveStream = isLiveStream;
+        console.log('livestream: ' + isLiveStream);
+        resolve();
+    });
+}
+
+
+function initializeUserStream(req, user, isLiveStream){
+    return new Promise(function(resolve){
+        twitterClient.stream('statuses/filter', {track: 'beer'}, function(newStream){
+                userStreams[user] = newStream;
         });
         userStreams[user].isLiveStream = isLiveStream;
         console.log('start streaming...');
         userStreams[user].on('data', function(tweet){
-            console.log(tweet.text);
             if (userStreams[user].isLiveStream){
                 console.log('LiveStream tweet');
                 req.io.emit('newTweet', {tweet: tweet});
             }
             else
                 tweetQueue.push(tweet);
+            console.log(tweet.text);
         });
         userStreams[user].on('error', function(error){
             console.error(error);
@@ -139,13 +152,8 @@ function startUserStream(req, user, isLiveStream, callback){
                 error: error
             });
         });
-        callback();
-    }
-    else{
-        console.log('livestream: ' + isLiveStream);
-        userStreams[user].isLiveStream = isLiveStream;
-        callback();
-    }
+        resolve();
+    });
 }
 
 app.listen(3000);
