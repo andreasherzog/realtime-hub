@@ -1,6 +1,7 @@
 var express = require('express.io');
 var app = express();
 var Twitter = require('twitter');
+var Promise = require('bluebird');
 var twitterClient = new Twitter({
     consumer_key: process.env.CONSUMER_KEY,
     consumer_secret: process.env.CONSUMER_SECRET,
@@ -22,14 +23,15 @@ app.io.route('ready', function(){
 
 app.io.route('countUp', function(req){
     var increaseBy = req.data.increaseBy;
-    counter = counter + increaseBy;
-    setTimeout(function(){
-        req.io.respond({
-            serverText: 'Counter increased by ' + increaseBy +
-                ', is now: ' + counter,
-            counter: counter
-        });
-    }, 2000);
+    increase(increaseBy)
+    .delay(2000)
+    .then(increasedResponse.bind(null, increaseBy))
+    .then(function(increasedResult){
+        req.io.respond(increasedResult);
+    })
+    .catch(function (error){
+        handleError(error, req);
+    });
 });
 
 app.io.route('Stream', {
@@ -73,6 +75,35 @@ app.io.route('getNextTweets', function(req){
 app.get('/', function(req, res){
     res.sendfile(__dirname + '/public/client.html');
 });
+
+
+function handleError(error, req){
+    console.error(error);
+    req.io.emit('error', {
+        error: error
+    });
+}
+
+function increase(increaseBy){
+    return new Promise(function(resolve){
+        counter = counter + increaseBy;
+        resolve(counter);
+    });
+}
+
+
+function increasedResponse(increaseBy){
+    return new Promise(function(resolve){
+        var increasedResult = {
+                                serverText: 'Counter increased by ' + increaseBy +
+                                            ', is now: ' + counter,
+                                counter: counter
+                                };
+
+        resolve(increasedResult);
+    });
+}
+
 
 function stopUserStream(req, user, callback){
     var userStream;
