@@ -21,7 +21,7 @@ function getSocketUrl(){
     console.log(currentUrl);
     if(currentUrl === 'http://localhost:3000/')
         return currentUrl;
-    return 'http://hub.pom-dev002.muc.pom';
+    return 'hub.pom-dev002.muc.pom';
 }
 
 function replaceNotificationArea(newText){
