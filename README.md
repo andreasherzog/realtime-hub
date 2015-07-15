@@ -2,8 +2,8 @@
 Introduces a node.js hub between a client and a REST API to increase performance and efficiency
 
 ## usage
-* clone code
-* run 
+1. clone code
+2. run 
     npm i
-* run 
+3. run 
     npm start
