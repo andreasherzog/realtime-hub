@@ -1,31 +1,22 @@
-var express = require('express.io');
-var app = express();
+var ioRouter = {};
+
+var socketIo = require('socket.io');
+
 var twitterIoHandler = require('./lib/handler/twitterIo');
-var countIoHandler = require('./lib/handler/countIO');
+var countIoHandler = require('./lib/handler/countIo');
 
-exports.app = app;
+module.exports = ioRouter;
 
-app.http().io();
-
-app.io.route('ready', function () {
-    console.log('client connected, to start streaming press button...');
-});
-
-app.io.route('countUp', countIoHandler.countUp);
-
-app.io.route('Stream', {
-    start: twitterIoHandler.startStream,
-    stop: twitterIoHandler.stopStream,
-    live: twitterIoHandler.liveStream
-});
+ioRouter.init = function(server){
+    var io = socketIo(server);
+    io.on('connection', function (socket) {
+        console.log('client ' + socket.id + ' connected, to start streaming press button...');
+        socket.on('countUp', countIoHandler.countUp);
+        socket.on('Stream:start', twitterIoHandler.startStream.bind(null, socket));
+        socket.on('Stream:stop', twitterIoHandler.stopStream.bind(null, socket));
+        socket.on('Stream:live', twitterIoHandler.liveStream.bind(null, socket));
+        socket.on('getNextTweets', twitterIoHandler.getNextTweets.bind(null, socket));
+    });
 
 
-app.io.route('getNextTweets', function(req){
-    var slicePosition = req.data.numberOfTweets;
-    var tweetsToSend = tweetQueue.slice(0, slicePosition);
-    tweetQueue = tweetQueue.slice(slicePosition, tweetQueue.length);
-    req.io.respond({
-                tweets: tweetsToSend
-            });
-});
-
+};

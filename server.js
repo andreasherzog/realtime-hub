@@ -1,10 +1,20 @@
-var express = require('express.io');
-var app = require('./ioRouter').app;
-console.log(app);
+var express = require('express');
+
+var io = require('./ioRouter');
+var app = express();
+
+var server;
+
 app.use(express.static('public'));
+
+app.set('port', 3000);
 
 app.get('/', function(req, res){
     res.sendfile(__dirname + '/public/client.html');
 });
 
-app.listen(3000);
+server = app.listen(app.get('port'), function() {
+    console.log('Express server running on port ' + app.get('port'));
+});
+
+io.init(server);

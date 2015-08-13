@@ -2,9 +2,9 @@ var isLiveStream = false;
 
 var socketUrl = getSocketUrl();
 
-io = io.connect(socketUrl);
+var io = io.connect(socketUrl);
 
-io.emit('ready', {from: 'client'}, function(){});
+io.emit('ready', {from: 'client'});
 io.on('stopStream', function(){
         replaceNotificationArea('Stream: inactive');
 });
@@ -14,6 +14,12 @@ io.on('error', function(data){
 io.on('newTweet', function(data){
         console.log(data.tweet);
         addToTextArea(renderTweet(data.tweet));
+});
+io.on('nextTweets', function(data){
+        data.tweets.forEach(function(currentValue, index){
+            console.log(currentValue);
+            addToTextArea(renderTweet(currentValue));
+        });
 });
 
 function getSocketUrl(){
@@ -67,15 +73,12 @@ function startStream(){
     replaceNotificationArea('Stream: active');
 }
 function getNextTweets(){
+    console.log('getNextTweets')
     io.emit('getNextTweets', {
         numberOfTweets: 3
-    }, function(data){
-        data.tweets.forEach(function(currentValue, index){
-            console.log(currentValue);
-            addToTextArea(renderTweet(currentValue));
-        });
     });
 }
+
 function stopStream(){
     io.emit('Stream:stop');
 }
