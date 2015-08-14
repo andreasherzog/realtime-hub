@@ -25,6 +25,10 @@ io.on('nextTweets', function(data){
             addToTextArea(renderTweet(currentValue));
         });
 });
+io.on('countUpResult', function(data){
+        replaceTextArea(data.serverText);
+    });
+
 
 function getSocketUrl(){
     var currentUrl = window.location.href;
@@ -67,9 +71,7 @@ function renderTweet(tweet){
     return tweet.created_at + ' | ' + tweet.text;
 }
 function sendCountUp(){
-    io.emit('countUp', {increaseBy: 1}, function(data){
-        replaceTextArea(data.serverText);
-    });
+    io.emit('countUp', {increaseBy: 1});
 }
 function startStream(){
     isLiveStream = false;
