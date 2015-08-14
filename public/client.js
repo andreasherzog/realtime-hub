@@ -2,7 +2,11 @@ var isLiveStream = false;
 
 var socketUrl = getSocketUrl();
 
-var io = io.connect(socketUrl);
+var io = io.connect(socketUrl, {
+  'reconnect': true,
+  'reconnection delay': 500,
+  'max reconnection attempts': 10
+});
 
 io.emit('ready', {from: 'client'});
 io.on('stopStream', function(){
